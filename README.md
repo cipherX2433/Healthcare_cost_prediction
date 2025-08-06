@@ -1,16 +1,14 @@
 # 🏥 Health Insurance Premium Prediction - Advanced ML Pipeline
 
-This project focuses on **predicting annual health insurance premiums** using demographic, financial, and health-related features. The pipeline explores robust **EDA**, **Feature Engineering**, **ML Modeling**, and **Error Analysis** across **three different customer segments**:
+This project focuses on **predicting annual health insurance premiums** using demographic, financial, and health-related features. It includes robust **EDA**, **Feature Engineering**, **Model Training**, and **Error Analysis**, across **three customer segments**:
 
-- `premiums.xlsx` (All users)
-- `premiums_rest.xlsx` (All except younger users)
-- `premiums_young.xlsx` (Younger user segment)
+- `premiums.xlsx` → All users  
+- `premiums_rest.xlsx` → Excluding young users  
+- `premiums_young.xlsx` → Young segment (age ≤ 25)
 
 ---
 
 ## 📁 Dataset Overview
-
-Each dataset contains attributes such as:
 
 | Feature                | Description                                 |
 |------------------------|---------------------------------------------|
@@ -22,87 +20,128 @@ Each dataset contains attributes such as:
 | `employment_status`    | Employment type                             |
 | `smoking_status`       | Smoker status                               |
 | `medical_history`      | Health condition(s)                         |
-| `insurance_plan`       | Bronze/Silver/Gold                          |
+| `insurance_plan`       | Bronze/Silver/Gold tier                     |
 | `annual_premium_amount`| 💡 **Target Variable**                      |
 
 ---
 
 ## 🔄 Data Preprocessing
 
-- Removed nulls and duplicates
-- Replaced negative values in `number_of_dependants`
-- Capped outliers using **IQR** and **quantile filtering**
-- Fixed inconsistencies in values (e.g. `'Smoking=0'` → `'No Smoking'`)
+- ✅ Removed nulls and duplicates  
+- 🔄 Fixed negative `number_of_dependants`  
+- ✂️ Capped outliers using **IQR** and **quantile thresholds**  
+- 🔧 Cleaned dirty categorical values (e.g. `'Smoking=0'` → `'No Smoking'`)
 
 ---
 
 ## 📊 Exploratory Data Analysis (EDA)
 
-- 📦 **Boxplots** for outlier detection  
-- 📈 **Histograms** with KDE for distribution shape  
-- 🟢 **Scatterplots** for feature vs premium correlation  
-- 📉 **Bar plots & Heatmaps** for bivariate categorical insight
+- 📦 **Boxplots** → Outlier detection  
+- 📈 **Histograms (with KDE)** → Skewness & distribution  
+- 🟢 **Scatterplots** → Continuous vs Target  
+- 📊 **Barplots & Heatmaps** → Categorical impact  
 
 ---
 
 ## 🧠 Feature Engineering
 
-- Parsed `medical_history` into `disease1` & `disease2`
-- Assigned **Risk Scores** to each disease:
+- 🧬 Parsed `medical_history` into `disease1`, `disease2`
+- 🧮 Assigned **Risk Scores** based on disease:
   ```python
   risk_score = {
-      "diabetes": 6,
-      "heart disease": 8,
-      "high blood pressure": 6,
-      "thyroid": 5,
-      "no disease": 0,
-      "none": 0
+    "diabetes": 6, "heart disease": 8, "high blood pressure": 6,
+    "thyroid": 5, "no disease": 0, "none": 0
   }
-Created a normalized total risk score feature
-Mapped ordinal features (e.g. plan tiers, income levels)
-One-hot encoded nominal features
-📉 Correlation & Multicollinearity
-Generated correlation heatmap
-Used VIF (Variance Inflation Factor) to detect and remove multicollinear features (income_level)
-📏 Feature Scaling
-Scaled using MinMaxScaler for:
-age
-number_of_dependants
-income_level
-income_lakhs
-insurance_plan
-🤖 Model Training
-Linear Regression
-Interpretable and stable
-Feature importance visualized
-Ridge Regression
-Compared multiple alpha values
-XGBoost Regressor
-Outperformed linear models in accuracy
-Tuned using RandomizedSearchCV
+## ⚙️ Feature Engineering
+
+- ➕ Created `total_risk_score` by combining disease severity scores
+- 📊 Normalized the risk score between 0 and 1
+- 🔢 Encoded ordinal features:
+  - `insurance_plan`: Bronze → 1, Silver → 2, Gold → 3
+  - `income_level`: <10L → 1, ..., >40L → 4
+- 🔁 One-hot encoded all nominal categorical features:
+  - `gender`, `region`, `bmi_category`, `marital_status`, etc.
+
+---
+
+## 📏 Correlation & Multicollinearity
+
+- 🔍 Generated **correlation heatmap** for feature relationships
+- 🧠 Used **Variance Inflation Factor (VIF)** for multicollinearity detection
+  - ❌ Dropped `income_level` (due to high VIF)
+
+---
+
+## ⚖️ Feature Scaling
+
+Used **`MinMaxScaler`** on the following continuous/ordinal variables:
+
+```text
+• age  
+• number_of_dependants  
+• income_lakhs  
+• income_level  
+• insurance_plan  
+🤖 Model Training & Evaluation
+🔹 Linear Regression
+
+✅ Interpretable and stable model
+📈 Achieved high train/test R² scores
+📊 Visualized feature importance using coefficients
+🔸 Ridge Regression
+
+🛠 Tested multiple alpha values: 0.01, 0.1, 1, 5, 10
+🎯 Assessed impact of regularization on model performance
+🟠 XGBoost Regressor
+
+✅ Best performing model (lowest RMSE, highest R²)
+🔧 Tuned with RandomizedSearchCV using parameter grid:
+python
+param_grid = {
+    'n_estimators': [20, 40, 50],
+    'learning_rate': [0.01, 0.1, 0.2],
+    'max_depth': [3, 4, 5],
+}
+📊 Tree-based feature importance is effective but less interpretable
 🧪 Evaluation Metrics
-R² Score
-MSE and RMSE
-Feature importances from both linear & tree-based models
+
+Metric	Description
+R² Score	Goodness-of-fit (explained variance)
+MSE / RMSE	Magnitude of prediction error
+diff_pct	% error calculated as (predicted - actual) / actual * 100
 ❌ Error Analysis
-Identified high-error predictions using %diff
-Segmented out extreme errors > 10%
-Compared distributions (all data vs extreme error group)
-🔍 Finding
-Most extreme prediction errors occur in customers below age 25, even after scaling correction.
-✅ Solution
-Implemented segmented modeling:
-premiums_rest.xlsx: General population
-premiums_young.xlsx: Dedicated model for younger users
-🧩 Next Steps
-Apply age-based model segmentation in production
-Test stacked models or ensemble approaches
-Try log/power transform on target to reduce skewness
-Explore SHAP/LIME for XGBoost interpretability
+
+Strategy:
+Predicted y_pred on test set X_test
+Computed:
+residual = predicted - actual
+diff_pct = residual * 100 / actual
+Focused on extreme errors where |diff_pct| > 10%
+Key Findings:
+Extreme errors are present in approximately X% of test data
+Most high-error points are from users aged ≤ 25 years
+These users cause prediction instability even after feature scaling
+Visual Insight:
+🔵 Blue = Extreme Errors
+🔴 Red = Overall Test Distribution
+Example: Age distribution with extreme error highlighting
+![Age Distribution Error Histogram](https://github.com/yourusername/projectname/assets ✅ Segmented Modeling Solution
+Segment	Dataset Used
+General Users	premiums_rest.xlsx
+Younger Users (≤25)	premiums_young.xlsx
+Segmented models significantly reduced prediction error and improved model generalizability.
+🧩 Future Improvements
+
+🔁 Apply log or Box-Cox transformation on annual_premium_amount
+🔍 Use SHAP or LIME for better XGBoost interpretability
+🧠 Develop stacked or ensemble models for improved accuracy
+💡 Add business logic constraints (e.g., cap predictions based on income tiers)
 🛠 Tech Stack
-Python
-NumPy, Pandas
-Seaborn, Matplotlib
-Scikit-learn
-XGBoost
-Statsmodels
+
+Tool / Library	Purpose
+🐍 Python	Core programming language
+🧮 Pandas, NumPy	Data processing
+📊 Seaborn, Matplotlib	Data visualization
+🤖 Scikit-learn	ML models, metrics, preprocessing
+🌲 XGBoost	Tree-based regression
+🧠 Statsmodels	VIF calculations & diagnostics
