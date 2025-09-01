@@ -2,6 +2,8 @@
 
 This project focuses on **predicting annual health insurance premiums** using demographic, financial, and health-related features. It includes robust **EDA**, **Feature Engineering**, **Model Training**, and **Error Analysis**, across **three customer segments**:
 
+![Demo](ss1.png)
+
 - `premiums.xlsx` → All users  
 - `premiums_rest.xlsx` → Excluding young users  
 - `premiums_young.xlsx` → Young segment (age ≤ 25)
