@@ -1,6 +1,6 @@
-streamlit>=1.36.0  # but check latest supports Python 3.13
-pandas>=2.2.3
-numpy==1.26.4      # acceptable
-joblib==1.4.2      # acceptable
-scikit-learn>=1.6.0
-xgboost==1.7.6     # verify compatibility manually
+streamlit==1.39.0          # latest as of Nov 2025, supports Python 3.13
+pandas==2.2.3              # 2.2.2 fails on 3.13; 2.2.3 adds support
+numpy==1.26.4              # okay for 3.13
+joblib==1.4.2              # okay
+scikit-learn==1.6.0        # adds Python 3.13 support
+xgboost==2.1.1             # 1.7.x wheels not built for 3.13; 2.1.1 confirmed works
