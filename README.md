@@ -2,6 +2,11 @@
 
 This project focuses on **predicting annual health insurance premiums** using demographic, financial, and health-related features. It includes robust **EDA**, **Feature Engineering**, **Model Training**, and **Error Analysis**, across **three customer segments**:
 
+<p align="center">
+  🌐 <a href="https://cipherx-healthcare-cost-prediction.streamlit.app/">Live Demo App</a> |
+  🧠 <a href="https://github.com/cipherX2433/Healthcare_cost_prediction">Source Code</a>
+</p>
+
 ![Demo](ss1.png)
 
 - `premiums.xlsx` → All users  
