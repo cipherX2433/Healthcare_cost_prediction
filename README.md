@@ -9,7 +9,6 @@ A machine learning project to predict annual healthcare insurance premium amount
 ```
 Healthcare_premium_pred/
 │
-│
 ├── Healthcare_premium_pred.ipynb           # Full dataset EDA, feature engineering & modeling
 ├── Healthcare_premium_pred2.ipynb          # Dataset splitting (young vs rest)
 ├── Healthcare_premium_pred_young.ipynb     # Modeling for age ≤ 25 segment
