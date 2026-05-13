@@ -1,154 +1,131 @@
-# 🏥 Health Insurance Premium Prediction - Advanced ML Pipeline
+# 🏥 Healthcare Premium Prediction
 
-This project focuses on **predicting annual health insurance premiums** using demographic, financial, and health-related features. It includes robust **EDA**, **Feature Engineering**, **Model Training**, and **Error Analysis**, across **three customer segments**:
-
-<p align="center">
-  🌐 <a href="https://cipherx-healthcare-cost-prediction.streamlit.app/">Live Demo App</a> |
-  🧠 <a href="https://github.com/cipherX2433/Healthcare_cost_prediction">Source Code</a>
-</p>
-
-![Demo](ss1.png)
-
-- `premiums.xlsx` → All users  
-- `premiums_rest.xlsx` → Excluding young users  
-- `premiums_young.xlsx` → Young segment (age ≤ 25)
+A machine learning project to predict annual healthcare insurance premium amounts based on policyholder demographics, medical history, lifestyle, and financial attributes. The project includes thorough error analysis and model segmentation to handle age-based behavioral differences in the data.
 
 ---
 
-## 📁 Dataset Overview
+## 📁 Project Structure
 
-| Feature                | Description                                 |
-|------------------------|---------------------------------------------|
-| `age`                  | Age of policyholder                         |
-| `gender`               | Gender                                      |
-| `region`               | Geographic region                           |
-| `income_lakhs`         | Income in Lakhs                             |
-| `income_level`         | Binned income level                         |
-| `employment_status`    | Employment type                             |
-| `smoking_status`       | Smoker status                               |
-| `medical_history`      | Health condition(s)                         |
-| `insurance_plan`       | Bronze/Silver/Gold tier                     |
-| `annual_premium_amount`| 💡 **Target Variable**                      |
-
----
-
-## 🔄 Data Preprocessing
-
-- ✅ Removed nulls and duplicates  
-- 🔄 Fixed negative `number_of_dependants`  
-- ✂️ Capped outliers using **IQR** and **quantile thresholds**  
-- 🔧 Cleaned dirty categorical values (e.g. `'Smoking=0'` → `'No Smoking'`)
+```
+Healthcare_premium_pred/
+│
+│
+├── Healthcare_premium_pred.ipynb           # Full dataset EDA, feature engineering & modeling
+├── Healthcare_premium_pred2.ipynb          # Dataset splitting (young vs rest)
+├── Healthcare_premium_pred_young.ipynb     # Modeling for age ≤ 25 segment
+├── Healthcare_premium_pred_young_with_gr.ipynb  # Young segment + Genetical Risk feature
+├── Healthcare_premium_pred_rest.ipynb      # Modeling for age > 25 segment
+└── Healthcare_premium_pred_rest_with_gr.ipynb   # Rest segment + Genetical Risk feature
+```
 
 ---
 
-## 📊 Exploratory Data Analysis (EDA)
+## 📊 Dataset Features
 
-- 📦 **Boxplots** → Outlier detection  
-- 📈 **Histograms (with KDE)** → Skewness & distribution  
-- 🟢 **Scatterplots** → Continuous vs Target  
-- 📊 **Barplots & Heatmaps** → Categorical impact  
-
----
-
-## 🧠 Feature Engineering
-
-- 🧬 Parsed `medical_history` into `disease1`, `disease2`
-- 🧮 Assigned **Risk Scores** based on disease:
-  ```python
-  risk_score = {
-    "diabetes": 6, "heart disease": 8, "high blood pressure": 6,
-    "thyroid": 5, "no disease": 0, "none": 0
-  }
-## ⚙️ Feature Engineering
-
-- ➕ Created `total_risk_score` by combining disease severity scores
-- 📊 Normalized the risk score between 0 and 1
-- 🔢 Encoded ordinal features:
-  - `insurance_plan`: Bronze → 1, Silver → 2, Gold → 3
-  - `income_level`: <10L → 1, ..., >40L → 4
-- 🔁 One-hot encoded all nominal categorical features:
-  - `gender`, `region`, `bmi_category`, `marital_status`, etc.
+| Feature | Description |
+|---|---|
+| `age` | Age of the policyholder |
+| `number_of_dependants` | Number of dependants |
+| `income_lakhs` | Annual income in lakhs (INR) |
+| `income_level` | Categorical income bracket |
+| `gender` | Male / Female |
+| `region` | Geographic region |
+| `marital_status` | Married / Unmarried |
+| `bmi_category` | BMI classification |
+| `smoking_status` | Smoking / No Smoking / Occasional |
+| `employment_status` | Employment type |
+| `medical_history` | Diseases (e.g., Diabetes, Heart Disease, Hypertension, Thyroid) |
+| `insurance_plan` | Bronze / Silver / Gold |
+| `genetical_risk` | Genetic risk score (added in later iteration) |
+| `annual_premium_amount` | **Target variable** — premium in INR |
 
 ---
 
-## 📏 Correlation & Multicollinearity
+## 🔄 Project Workflow
 
-- 🔍 Generated **correlation heatmap** for feature relationships
-- 🧠 Used **Variance Inflation Factor (VIF)** for multicollinearity detection
-  - ❌ Dropped `income_level` (due to high VIF)
+### 1. Data Cleaning & Preprocessing
+- Removed null values and duplicate records
+- Fixed negative values in `number_of_dependants` using `abs()`
+- Capped age outliers at 100 and income outliers at the 99.9th percentile
+- Standardized inconsistent labels in `smoking_status` (e.g., `"Smoking=0"`, `"Does Not Smoke"` → `"No Smoking"`)
+
+### 2. Exploratory Data Analysis (EDA)
+- Univariate distribution analysis on all numeric and categorical features
+- Scatter plots for each numeric feature vs. `annual_premium_amount`
+- Bivariate analysis: Income Level vs. Insurance Plan (crosstab + heatmap)
+- Percentage distribution bar charts for all 9 categorical columns
+
+### 3. Feature Engineering
+- Split `medical_history` into `disease1` and `disease2`
+- Assigned domain-based **risk scores** to each disease:
+  - Heart Disease → 8, Diabetes → 6, High Blood Pressure → 6, Thyroid → 5, None → 0
+- Created `total_risk_score` and `normalized_risk_score`
+- Ordinal encoding for `insurance_plan` (Bronze=1, Silver=2, Gold=3) and `income_level`
+- One-hot encoding for nominal categorical columns
+
+### 4. Scaling & Multicollinearity Check
+- MinMax scaling on: `age`, `number_of_dependants`, `income_level`, `income_lakhs`, `insurance_plan`
+- VIF (Variance Inflation Factor) analysis — dropped `income_level` to reduce multicollinearity
+
+### 5. Model Training
+Models trained and evaluated (R² score):
+
+| Model | Notes |
+|---|---|
+| Linear Regression | Baseline model |
+| Ridge Regression | Tested across multiple alpha values |
+| XGBoost Regressor | Best performer; tuned via RandomizedSearchCV |
+
+Hyperparameter tuning for XGBoost:
+- `n_estimators`: [20, 40, 50]
+- `learning_rate`: [0.01, 0.1, 0.2]
+- `max_depth`: [3, 4, 5]
+
+### 6. Error Analysis & Model Segmentation
+- Computed residuals and `diff_pct` (percentage error) for all predictions
+- Identified **extreme errors** where `|diff_pct| > 10%`
+- Plotted feature distributions for extreme-error samples vs. overall dataset
+- **Key finding:** ~97% of extreme error cases belonged to policyholders aged ≤ 25
+- **Resolution:** Split the dataset into two segments — `age ≤ 25` (young) and `age > 25` (rest) — and trained separate models for each
+
+### 7. Genetical Risk Feature (Extended Analysis)
+- Added `genetical_risk` as an additional feature for both segments
+- Evaluated whether including genetic risk improved model performance
 
 ---
 
-## ⚖️ Feature Scaling
+## 🛠️ Tech Stack
 
-Used **`MinMaxScaler`** on the following continuous/ordinal variables:
+- **Language:** Python 3
+- **Libraries:** pandas, numpy, matplotlib, seaborn, scikit-learn, xgboost, statsmodels
+- **Environment:** Google Colab
 
-```text
-• age  
-• number_of_dependants  
-• income_lakhs  
-• income_level  
-• insurance_plan  
-🤖 Model Training & Evaluation
-🔹 Linear Regression
+---
 
-✅ Interpretable and stable model
-📈 Achieved high train/test R² scores
-📊 Visualized feature importance using coefficients
-🔸 Ridge Regression
+## ▶️ How to Run
 
-🛠 Tested multiple alpha values: 0.01, 0.1, 1, 5, 10
-🎯 Assessed impact of regularization on model performance
-🟠 XGBoost Regressor
+1. Clone the repository and open the notebooks in Google Colab or Jupyter.
+2. Mount your Google Drive and update the dataset paths accordingly.
+3. Run notebooks in this order:
+   - `Healthcare_premium_pred.ipynb` → Full pipeline + error analysis
+   - `Healthcare_premium_pred2.ipynb` → Split dataset by age group
+   - `Healthcare_premium_pred_young.ipynb` / `Healthcare_premium_pred_rest.ipynb` → Segment-wise models
+   - `*_with_gr.ipynb` variants → Models with Genetical Risk feature
 
-✅ Best performing model (lowest RMSE, highest R²)
-🔧 Tuned with RandomizedSearchCV using parameter grid:
-python
-param_grid = {
-    'n_estimators': [20, 40, 50],
-    'learning_rate': [0.01, 0.1, 0.2],
-    'max_depth': [3, 4, 5],
-}
-📊 Tree-based feature importance is effective but less interpretable
-🧪 Evaluation Metrics
+---
 
-Metric	Description
-R² Score	Goodness-of-fit (explained variance)
-MSE / RMSE	Magnitude of prediction error
-diff_pct	% error calculated as (predicted - actual) / actual * 100
-❌ Error Analysis
+## 💡 Key Insights
 
-Strategy:
-Predicted y_pred on test set X_test
-Computed:
-residual = predicted - actual
-diff_pct = residual * 100 / actual
-Focused on extreme errors where |diff_pct| > 10%
-Key Findings:
-Extreme errors are present in approximately X% of test data
-Most high-error points are from users aged ≤ 25 years
-These users cause prediction instability even after feature scaling
-Visual Insight:
-🔵 Blue = Extreme Errors
-🔴 Red = Overall Test Distribution
-Example: Age distribution with extreme error highlighting
-![Age Distribution Error Histogram](https://github.com/yourusername/projectname/assets ✅ Segmented Modeling Solution
-Segment	Dataset Used
-General Users	premiums_rest.xlsx
-Younger Users (≤25)	premiums_young.xlsx
-Segmented models significantly reduced prediction error and improved model generalizability.
-🧩 Future Improvements
+- **Age** is the most influential factor in premium prediction, especially for those under 25, where prediction behavior differs significantly from older policyholders.
+- **Smoking status** and **medical history** (especially heart disease and diabetes) are strong drivers of premium amounts.
+- **Model segmentation** by age group substantially reduced prediction error, demonstrating the importance of error analysis in real-world ML workflows.
+- Including a **Genetical Risk** score improves model interpretability and can marginally improve accuracy for certain age segments.
 
-🔁 Apply log or Box-Cox transformation on annual_premium_amount
-🔍 Use SHAP or LIME for better XGBoost interpretability
-🧠 Develop stacked or ensemble models for improved accuracy
-💡 Add business logic constraints (e.g., cap predictions based on income tiers)
-🛠 Tech Stack
+---
 
-Tool / Library	Purpose
-🐍 Python	Core programming language
-🧮 Pandas, NumPy	Data processing
-📊 Seaborn, Matplotlib	Data visualization
-🤖 Scikit-learn	ML models, metrics, preprocessing
-🌲 XGBoost	Tree-based regression
-🧠 Statsmodels	VIF calculations & diagnostics
+## 📌 Future Improvements
+
+- Deploy as a web app using Streamlit or Flask
+- Add SHAP values for model explainability
+- Experiment with ensemble approaches (stacking/blending) across age segments
+- Include more granular genetic risk data if available
