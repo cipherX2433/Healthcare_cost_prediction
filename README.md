@@ -3,6 +3,7 @@
 A machine learning project to predict annual healthcare insurance premium amounts based on policyholder demographics, medical history, lifestyle, and financial attributes. The project includes thorough error analysis and model segmentation to handle age-based behavioral differences in the data.
 
 ---
+[Healthcare Cost Prediction App](https://cipherx-healthcare-cost-prediction.streamlit.app/)
 
 ## 📁 Project Structure
 
