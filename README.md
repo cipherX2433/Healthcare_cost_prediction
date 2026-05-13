@@ -4,6 +4,7 @@ A machine learning project to predict annual healthcare insurance premium amount
 
 ---
 [Demo App Link](https://cipherx-healthcare-cost-prediction.streamlit.app/)
+(ss1.png)
 
 ## 📁 Project Structure
 
